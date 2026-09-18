@@ -51,23 +51,36 @@ telecom-ontology/
 
 ## Status
 
-Phases 1 (environment) and 2 (ontology + synthetic data) are done. See
-[docs/PLAN.md](docs/PLAN.md) for phase tracking.
+Phases 1 (environment), 2 (ontology + synthetic data), and 3 (ingestion) are
+code-complete. Phase 3's ingestion logic (ontology-driven relationship
+grouping, chunking, payload shape) has been dry-run tested against real
+generated data; it has not yet been run end-to-end against a live Neo4j /
+Qdrant / vLLM stack. See [docs/PLAN.md](docs/PLAN.md) for phase tracking.
 
-## Getting started (Phase 2 — generate the dataset)
+## Getting started
 
 ```bash
 python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
+
+# Phase 2 — generate the synthetic dataset
 .venv/bin/python -m data.generator.generate --seed 42
+
+# Phase 3 — ingest into Neo4j + Qdrant (requires Phase 1's stack running)
+cp .env.example .env   # fill in NEO4J_PASSWORD and VLLM_EMBEDDING_MODEL
+.venv/bin/python -m ingestion.run_ingestion
 ```
 
-Writes `data/generated/graph.json` (all entities + relationships),
-`data/generated/tickets.json` (ticket text for Phase 3's vector store
-ingestion), and `data/generated/summary.json` (counts + incident clusters).
-Output is validated against [`ontology/schema.yaml`](ontology/schema.yaml)
-at generation time and is reproducible from the seed, so it isn't committed
-(see `.gitignore`).
+Phase 2 writes `data/generated/graph.json` (all entities + relationships),
+`data/generated/tickets.json` (ticket text), and `data/generated/summary.json`
+(counts + incident clusters). Output is validated against
+[`ontology/schema.yaml`](ontology/schema.yaml) at generation time and is
+reproducible from the seed, so it isn't committed (see `.gitignore`).
+
+Phase 3's `ingestion/neo4j_loader.py` and `ingestion/vector_loader.py` are
+each independently runnable too (`python -m ingestion.neo4j_loader`, `python
+-m ingestion.vector_loader`) and idempotent, so re-running after
+regenerating data is safe.
 
 ## Stack
 

@@ -157,9 +157,21 @@ An end-to-end, clearly staged pipeline:
       `python -m data.generator.generate --seed 42`, output validated
       against the schema and written to `data/generated/`, which is
       gitignored since it's reproducible from the seed).
-- [ ] **Phase 3 — Ingestion.** Write and test the Neo4j ingestion script;
+- [x] **Phase 3 — Ingestion.** Write and test the Neo4j ingestion script;
       write and test the embedding/ingestion pipeline into the vector
       store.
+      See `ingestion/` — `neo4j_loader.py` loads `data/generated/graph.json`
+      into Neo4j, driven directly by `ontology/schema.yaml` (including its
+      polymorphic `CONCERNS` target); `vector_loader.py` chunks and embeds
+      `Ticket` text via a vLLM OpenAI-compatible `/v1/embeddings` endpoint
+      and upserts into Qdrant with graph-linking payload metadata
+      (`customer_id`, `concerns_id`/`concerns_type`). Both scripts are
+      idempotent (MERGE / deterministic point ids). Run both via
+      `python -m ingestion.run_ingestion` after copying `.env.example` to
+      `.env`. Logic was dry-run tested against real generated data
+      (relationship grouping, chunking, payload shape); live DB/Qdrant/vLLM
+      connectivity has not yet been exercised end-to-end — see status note
+      below.
 - [ ] **Phase 4 — Retrieval core.** Implement the graph RAG path
       (NL-to-Cypher) alone and test it; implement the vector RAG path alone
       and test it; then build the router and fusion logic to combine them.
