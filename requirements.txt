@@ -1,0 +1,5 @@
+# Phase 2 — ontology validation + synthetic data generation
+PyYAML>=6.0
+
+# Later phases add: neo4j, qdrant-client or chromadb, fastapi, uvicorn,
+# sentence-transformers (or an OpenAI/vLLM-compatible embeddings client).

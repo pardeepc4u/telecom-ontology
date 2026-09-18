@@ -30,26 +30,44 @@ framing this project is built around.
 
 ```
 telecom-ontology/
-├── README.md                # this file
+├── README.md                 # this file
+├── requirements.txt
 ├── docs/
-│   ├── PLAN.md               # research context, interview angles, phased build plan
-│   ├── ONTOLOGY.md           # entity/relationship ontology definition
-│   ├── ARCHITECTURE.md       # retrieval pipeline design (router + fusion)
-│   └── EVALUATION.md         # eval methodology and results (filled in during Phase 6)
-├── data/                     # synthetic data generator + generated fixtures
-├── ingestion/                # Neo4j + vector store loaders
-├── retrieval/                # graph RAG, vector RAG, router, fusion logic
-├── serving/                  # FastAPI app
-└── docker-compose.yml         # Neo4j + vector store local stack
+│   ├── PLAN.md                # research context, interview angles, phased build plan
+│   ├── ONTOLOGY.md            # entity/relationship ontology definition
+│   ├── ARCHITECTURE.md        # retrieval pipeline design (router + fusion)
+│   └── EVALUATION.md          # eval methodology and results (filled in during Phase 6)
+├── ontology/
+│   ├── schema.yaml             # source-of-truth entity/relationship schema
+│   └── constraints.cypher      # Neo4j uniqueness constraints derived from schema.yaml
+├── data/
+│   ├── generator/               # synthetic data generator (topology, customers, tickets)
+│   └── generated/                # generator output — gitignored, reproducible from --seed
+├── ingestion/                  # Neo4j + vector store loaders (Phase 3)
+├── retrieval/                  # graph RAG, vector RAG, router, fusion logic (Phase 4)
+├── serving/                    # FastAPI app (Phase 5)
+└── docker-compose.yml           # Neo4j + vector store local stack (Phase 1)
 ```
-
-Directories above are the target layout from [docs/PLAN.md](docs/PLAN.md);
-they are created and filled in phase by phase, not all at once.
 
 ## Status
 
-Project scaffolding only — ontology and implementation phases not yet
-started. See [docs/PLAN.md](docs/PLAN.md) for phase tracking.
+Phases 1 (environment) and 2 (ontology + synthetic data) are done. See
+[docs/PLAN.md](docs/PLAN.md) for phase tracking.
+
+## Getting started (Phase 2 — generate the dataset)
+
+```bash
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
+.venv/bin/python -m data.generator.generate --seed 42
+```
+
+Writes `data/generated/graph.json` (all entities + relationships),
+`data/generated/tickets.json` (ticket text for Phase 3's vector store
+ingestion), and `data/generated/summary.json` (counts + incident clusters).
+Output is validated against [`ontology/schema.yaml`](ontology/schema.yaml)
+at generation time and is reproducible from the seed, so it isn't committed
+(see `.gitignore`).
 
 ## Stack
 

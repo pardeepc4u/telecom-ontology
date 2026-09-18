@@ -1,0 +1,99 @@
+# Ontology schema — source of truth for entity/relationship types.
+#
+# This is a hand-written, Neo4j-native schema (not OWL/RDF) per the tooling
+# decision in docs/PLAN.md. The synthetic data generator (data/generator/)
+# validates its output against this file, and ontology/constraints.cypher
+# enforces the uniqueness rules below at the database level during
+# ingestion (Phase 3).
+
+entities:
+  CellTower:
+    description: Physical cell tower serving a geographic area.
+    properties:
+      id: {type: string, required: true, unique: true}
+      name: {type: string, required: true}
+      location: {type: string, required: true, description: "lat,lon"}
+      capacity: {type: integer, required: true, description: "max concurrent connections"}
+
+  Router:
+    description: >
+      Network routing infrastructure. Tiered (core / regional / access) via
+      the DEPENDS_ON relationship — access routers depend on regional
+      routers, which depend on core routers.
+    properties:
+      id: {type: string, required: true, unique: true}
+      name: {type: string, required: true}
+      tier: {type: string, required: true, enum: [core, regional, access]}
+      location: {type: string, required: true, description: "lat,lon"}
+      model: {type: string, required: true}
+
+  Customer:
+    description: A subscriber account.
+    properties:
+      id: {type: string, required: true, unique: true}
+      name: {type: string, required: true}
+      account_tier: {type: string, required: true, enum: [standard, premium, business]}
+
+  ServicePlan:
+    description: A subscribable service offering. Small fixed catalog.
+    properties:
+      id: {type: string, required: true, unique: true}
+      name: {type: string, required: true}
+      sla_tier: {type: string, required: true, enum: [basic, standard, premium]}
+
+  Ticket:
+    description: >
+      An unstructured support ticket or outage report. Embedded into the
+      vector store for semantic recall (Phase 3); also linked into the
+      graph via FILED_BY and CONCERNS so hybrid retrieval can bridge from
+      structural context to relevant ticket text and back.
+    properties:
+      id: {type: string, required: true, unique: true}
+      text: {type: string, required: true}
+      category: {type: string, required: true, enum: [outage, degraded_service, billing, other]}
+      created_at: {type: string, required: true, description: "ISO 8601"}
+      status: {type: string, required: true, enum: [open, resolved]}
+
+relationships:
+  DEPENDS_ON:
+    from: Router
+    to: Router
+    cardinality: many-to-one
+    description: >
+      Upstream infrastructure dependency (access -> regional -> core).
+      Used for blast-radius / root-cause traversal.
+
+  CONNECTS_TO:
+    from: CellTower
+    to: Router
+    cardinality: many-to-one
+    description: Which access router a cell tower's traffic routes through.
+
+  SERVES:
+    from: CellTower
+    to: Customer
+    cardinality: one-to-many
+    description: Which cell tower serves a given customer.
+
+  SUBSCRIBES_TO:
+    from: Customer
+    to: ServicePlan
+    cardinality: many-to-one
+    description: A customer subscribes to exactly one active service plan.
+
+  FILED_BY:
+    from: Ticket
+    to: Customer
+    cardinality: many-to-one
+    description: Which customer filed a given ticket.
+
+  CONCERNS:
+    from: Ticket
+    to: [CellTower, Router]
+    cardinality: many-to-one
+    description: >
+      Which piece of infrastructure a ticket's issue traces back to. The
+      key structural/semantic bridge the hybrid retriever exploits: graph
+      traversal from a Router/CellTower reaches CONCERNS to find related
+      ticket text, while vector search over ticket text reaches the same
+      tickets by semantic similarity.

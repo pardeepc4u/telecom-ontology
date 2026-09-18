@@ -146,12 +146,17 @@ An end-to-end, clearly staged pipeline:
 
 ## 5. Phased build plan
 
-- [ ] **Phase 1 — Environment.** Stand up Neo4j Community Edition and a
+- [x] **Phase 1 — Environment.** Stand up Neo4j Community Edition and a
       vector store (Chroma or Qdrant) as Docker containers in the home lab;
       confirm local LLM access via the existing vLLM stack.
-- [ ] **Phase 2 — Ontology and data.** Write the ontology definition file
+- [x] **Phase 2 — Ontology and data.** Write the ontology definition file
       first; build the synthetic data generator (topology, customers,
       tickets) against that ontology.
+      See [ONTOLOGY.md](ONTOLOGY.md) and `ontology/schema.yaml` for the
+      finalized schema, and `data/generator/` for the generator (run via
+      `python -m data.generator.generate --seed 42`, output validated
+      against the schema and written to `data/generated/`, which is
+      gitignored since it's reproducible from the seed).
 - [ ] **Phase 3 — Ingestion.** Write and test the Neo4j ingestion script;
       write and test the embedding/ingestion pipeline into the vector
       store.
