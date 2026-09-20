@@ -45,19 +45,23 @@ telecom-ontology/
 ├── ingestion/                  # Neo4j + vector store loaders (Phase 3)
 ├── retrieval/                  # graph RAG, vector RAG, router, fusion logic (Phase 4)
 ├── serving/                    # FastAPI app (Phase 5)
+├── eval/                       # fixed question set, ground truth, metrics (Phase 6)
 └── docker-compose.yml           # Neo4j + vector store local stack (Phase 1)
 ```
 
 ## Status
 
-Phases 1–5 (environment, ontology + synthetic data, ingestion, retrieval
-core, serving) are done. Phases 3–5 have been confirmed working end-to-end
-against the live home-lab Neo4j / Qdrant / vLLM stack (2026-09-20) — real
-ingestion counts, real structural/semantic/hybrid query results, and real
-HTTP requests against the FastAPI `/ask` endpoint, not just offline unit
-tests. See [docs/PLAN.md](docs/PLAN.md) for phase tracking and
-[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the retrieval design,
-including a deliberate deviation from the original NL-to-Cypher plan.
+Phases 1–6 (environment, ontology + synthetic data, ingestion, retrieval
+core, serving, evaluation) are done. Phases 3–6 have been confirmed working
+end-to-end against the live home-lab Neo4j / Qdrant / vLLM stack
+(2026-09-20) — real ingestion counts, real query results, real HTTP
+requests, and a real scored evaluation run, not just offline unit tests.
+See [docs/PLAN.md](docs/PLAN.md) for phase tracking,
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the retrieval design
+(including a deliberate deviation from the original NL-to-Cypher plan, and
+a fusion bug the evaluation caught and fixed), and
+[docs/EVALUATION.md](docs/EVALUATION.md) for the results table and an
+honest write-up of where hybrid did and didn't beat a single-path mode.
 
 ## Getting started
 
@@ -80,6 +84,9 @@ cp .env.example .env   # fill in NEO4J_PASSWORD, VLLM_EMBEDDING_MODEL, VLLM_CHAT
 curl -s -X POST http://localhost:8000/ask \
   -H "Content-Type: application/json" \
   -d '{"question": "what'"'"'s causing the outage tickets near tower-014?"}'
+
+# Phase 6 — run the fixed evaluation question set
+.venv/bin/python -m eval.run_eval
 ```
 
 Phase 2 writes `data/generated/graph.json` (all entities + relationships),
@@ -110,6 +117,14 @@ alongside the prose `answer` in the response, since LLM synthesis isn't
 always perfectly faithful to the retrieved evidence (see
 [docs/PLAN.md's Phase 5 note](docs/PLAN.md)) — the raw rows/hits are the
 ground truth to fall back on.
+
+Phase 6's `eval/` runs a fixed 9-question set — three categories, each
+designed so a *different* mode should win — against all three retrieval
+modes, scored against ground truth computed independently of any
+retrieval code. See [docs/EVALUATION.md](docs/EVALUATION.md) for the full
+results table and findings, including a real fusion scoring bug the
+evaluation caught (structural and semantic scores lived on incomparable
+scales) and the fix (switching to Reciprocal Rank Fusion).
 
 ## Stack
 

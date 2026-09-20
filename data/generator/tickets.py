@@ -99,13 +99,7 @@ def generate_tickets(rng: random.Random, routers, towers, connects_to, depends_o
             continue
 
         n_tickets = rng.randint(*TICKETS_PER_INCIDENT)
-        incidents_summary.append({
-            "router_id": incident_router["id"],
-            "router_tier": incident_router["tier"],
-            "affected_tower_count": len(affected_towers),
-            "affected_customer_count": len(affected_customers),
-            "ticket_count": n_tickets,
-        })
+        incident_ticket_ids = []
 
         for _ in range(n_tickets):
             ticket_id = next_ticket_id()
@@ -121,11 +115,25 @@ def generate_tickets(rng: random.Random, routers, towers, connects_to, depends_o
                 "status": status,
             })
             filed_by.append({"from": ticket_id, "to": customer_id})
+            incident_ticket_ids.append(ticket_id)
 
             if incident_router["tier"] == "regional" and rng.random() < 0.3:
                 concerns.append({"from": ticket_id, "to": incident_router["id"], "to_type": "Router"})
             else:
                 concerns.append({"from": ticket_id, "to": tower_id, "to_type": "CellTower"})
+
+        # Ground truth for Phase 6 evaluation: which tickets were actually
+        # generated as evidence of *this* incident, independent of what any
+        # retrieval path later finds. Not consumed by ingestion/retrieval —
+        # only by eval/, so it can't leak into and bias the thing it grades.
+        incidents_summary.append({
+            "router_id": incident_router["id"],
+            "router_tier": incident_router["tier"],
+            "affected_tower_ids": [t["id"] for t in affected_towers],
+            "affected_customer_count": len(affected_customers),
+            "ticket_count": n_tickets,
+            "ticket_ids": incident_ticket_ids,
+        })
 
     all_customer_ids = list(customer_to_tower.keys())
     for _ in range(ROUTINE_TICKET_COUNT):

@@ -211,9 +211,31 @@ An end-to-end, clearly staged pipeline:
       the drop happened in prose generation. `retrieval` is always returned
       alongside `answer` in the API response for exactly this reason — the
       demo should show both, not just the prose.
-- [ ] **Phase 6 — Evaluation.** Write the fixed test question set; run all
+- [x] **Phase 6 — Evaluation.** Write the fixed test question set; run all
       three modes (vector-only, graph-only, hybrid); document results in
       [EVALUATION.md](EVALUATION.md) with a comparison table.
+      See `eval/` and [EVALUATION.md](EVALUATION.md) for the full
+      methodology, results table, and findings write-up. Headline results:
+      each single-path mode wins decisively on the category built for it
+      (graph_only: 1.0 F1 on location-only questions; vector_only: clears
+      graph_only by a wide margin on symptom-only questions); hybrid did
+      **not** beat graph_only on root-cause questions in this run (0.53 vs.
+      0.84 mean F1) — explained honestly in EVALUATION.md's Findings
+      section rather than glossed over (this synthetic dataset's `CONCERNS`
+      edges are complete and noise-free by construction, so there's little
+      for a second, noisier signal to add; hybrid's real value likely shows
+      up on messier data with missing/wrong structural links, which is
+      flagged as a follow-up eval, not run here).
+      Evaluation itself caught and fixed a real fusion bug: the first run
+      showed `hybrid` producing results *identical* to `vector_only` on
+      every root-cause question — traced to `fusion.py` summing raw
+      structural (`1/(1+hops)`) and semantic (cosine similarity) scores
+      directly, which live on incomparable scales, so weaker semantic hits
+      routinely outranked genuinely relevant structural ones. Fixed by
+      switching `fusion.py` to Reciprocal Rank Fusion (rank position within
+      each list, not raw score) — the standard technique for exactly this
+      problem. Confirmed fixed and re-verified against the live stack
+      (2026-09-20).
 - [ ] **Phase 7 — Polish for interview.** Clean README explaining the
       ontology design and fusion logic decisions; push to GitHub; rehearse
       walking through the architecture end to end.

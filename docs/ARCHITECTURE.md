@@ -75,16 +75,28 @@ around async clients.)
 
 ### 3. Fusion logic
 
-Scoring that:
+Combines each path's ticket hits by **Reciprocal Rank Fusion (RRF)**: a
+hit's contribution is `1/(k + rank)` — based on its rank position *within
+its own source list*, not its raw score. Effects:
 
-- **Boosts** results found by both retrieval paths (structural + semantic
-  agreement is a strong relevance signal),
-- **Keeps** single-path scores for results found by only one path,
-- **Sorts** the combined, scored set down to a final top-k.
+- **Boosts** results found by both retrieval paths — their RRF
+  contributions from both lists sum together, so agreement is still a
+  stronger signal than either alone.
+- **Keeps** a single-path contribution for results found by only one path.
+- **Sorts** the combined set down to a final top-k.
 
-This is the piece most worth walking through in an interview: it's a
-concrete, inspectable answer to "how do you combine graph and vector
-retrieval" rather than a hand-wave.
+This is the piece most worth walking through in an interview — not just as
+a concrete, inspectable answer to "how do you combine graph and vector
+retrieval," but as a real example of a bug Phase 6's evaluation caught: an
+earlier version summed raw scores directly (structural's `1/(1+hops)` vs.
+semantic's cosine similarity), and those two scores turned out to live on
+incomparable scales — a 1-hop structural match scored 0.5, below typical
+semantic scores of 0.55–0.9, so weaker semantic-only hits routinely
+outranked genuinely relevant structural evidence. RRF fixes this
+generically, since rank position is always on the same 1..N scale
+regardless of source — it's the standard technique for exactly this
+problem in hybrid search. Full details in
+[EVALUATION.md's findings](EVALUATION.md#findings).
 
 ## Why this shape
 

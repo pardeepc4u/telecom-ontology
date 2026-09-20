@@ -1,0 +1,313 @@
+{
+  "top_k": 30,
+  "rows": [
+    {
+      "id": "S1",
+      "category": "structural_favorable",
+      "question": "What support tickets are on file for tower-032?",
+      "mode": "graph_only",
+      "retrieved_count": 29,
+      "ground_truth_count": 29,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    {
+      "id": "S1",
+      "category": "structural_favorable",
+      "question": "What support tickets are on file for tower-032?",
+      "mode": "vector_only",
+      "retrieved_count": 30,
+      "ground_truth_count": 29,
+      "precision": 0.1,
+      "recall": 0.103,
+      "f1": 0.102
+    },
+    {
+      "id": "S1",
+      "category": "structural_favorable",
+      "question": "What support tickets are on file for tower-032?",
+      "mode": "hybrid",
+      "retrieved_count": 30,
+      "ground_truth_count": 29,
+      "precision": 0.567,
+      "recall": 0.586,
+      "f1": 0.576
+    },
+    {
+      "id": "S2",
+      "category": "structural_favorable",
+      "question": "What support tickets are on file for tower-016?",
+      "mode": "graph_only",
+      "retrieved_count": 15,
+      "ground_truth_count": 15,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    {
+      "id": "S2",
+      "category": "structural_favorable",
+      "question": "What support tickets are on file for tower-016?",
+      "mode": "vector_only",
+      "retrieved_count": 30,
+      "ground_truth_count": 15,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    {
+      "id": "S2",
+      "category": "structural_favorable",
+      "question": "What support tickets are on file for tower-016?",
+      "mode": "hybrid",
+      "retrieved_count": 30,
+      "ground_truth_count": 15,
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1": 0.667
+    },
+    {
+      "id": "S3",
+      "category": "structural_favorable",
+      "question": "What support tickets are on file for tower-028?",
+      "mode": "graph_only",
+      "retrieved_count": 7,
+      "ground_truth_count": 7,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    {
+      "id": "S3",
+      "category": "structural_favorable",
+      "question": "What support tickets are on file for tower-028?",
+      "mode": "vector_only",
+      "retrieved_count": 30,
+      "ground_truth_count": 7,
+      "precision": 0.067,
+      "recall": 0.286,
+      "f1": 0.108
+    },
+    {
+      "id": "S3",
+      "category": "structural_favorable",
+      "question": "What support tickets are on file for tower-028?",
+      "mode": "hybrid",
+      "retrieved_count": 30,
+      "ground_truth_count": 7,
+      "precision": 0.233,
+      "recall": 1.0,
+      "f1": 0.378
+    },
+    {
+      "id": "V1",
+      "category": "semantic_favorable",
+      "question": "Have any customers reported intermittent dropouts during calls?",
+      "mode": "graph_only",
+      "retrieved_count": 0,
+      "ground_truth_count": 7,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    {
+      "id": "V1",
+      "category": "semantic_favorable",
+      "question": "Have any customers reported intermittent dropouts during calls?",
+      "mode": "vector_only",
+      "retrieved_count": 30,
+      "ground_truth_count": 7,
+      "precision": 0.233,
+      "recall": 1.0,
+      "f1": 0.378
+    },
+    {
+      "id": "V1",
+      "category": "semantic_favorable",
+      "question": "Have any customers reported intermittent dropouts during calls?",
+      "mode": "hybrid",
+      "retrieved_count": 30,
+      "ground_truth_count": 7,
+      "precision": 0.233,
+      "recall": 1.0,
+      "f1": 0.378
+    },
+    {
+      "id": "V2",
+      "category": "semantic_favorable",
+      "question": "Have any customers reported text messages arriving 10-20 minutes late?",
+      "mode": "graph_only",
+      "retrieved_count": 0,
+      "ground_truth_count": 13,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    {
+      "id": "V2",
+      "category": "semantic_favorable",
+      "question": "Have any customers reported text messages arriving 10-20 minutes late?",
+      "mode": "vector_only",
+      "retrieved_count": 30,
+      "ground_truth_count": 13,
+      "precision": 0.433,
+      "recall": 1.0,
+      "f1": 0.605
+    },
+    {
+      "id": "V2",
+      "category": "semantic_favorable",
+      "question": "Have any customers reported text messages arriving 10-20 minutes late?",
+      "mode": "hybrid",
+      "retrieved_count": 30,
+      "ground_truth_count": 13,
+      "precision": 0.433,
+      "recall": 1.0,
+      "f1": 0.605
+    },
+    {
+      "id": "V3",
+      "category": "semantic_favorable",
+      "question": "Have any customers reported video calls freezing every few minutes?",
+      "mode": "graph_only",
+      "retrieved_count": 0,
+      "ground_truth_count": 8,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    {
+      "id": "V3",
+      "category": "semantic_favorable",
+      "question": "Have any customers reported video calls freezing every few minutes?",
+      "mode": "vector_only",
+      "retrieved_count": 30,
+      "ground_truth_count": 8,
+      "precision": 0.267,
+      "recall": 1.0,
+      "f1": 0.421
+    },
+    {
+      "id": "V3",
+      "category": "semantic_favorable",
+      "question": "Have any customers reported video calls freezing every few minutes?",
+      "mode": "hybrid",
+      "retrieved_count": 30,
+      "ground_truth_count": 8,
+      "precision": 0.267,
+      "recall": 1.0,
+      "f1": 0.421
+    },
+    {
+      "id": "H1",
+      "category": "hybrid_favorable",
+      "question": "What's likely causing the outage tickets near router-028?",
+      "mode": "graph_only",
+      "retrieved_count": 29,
+      "ground_truth_count": 21,
+      "precision": 0.724,
+      "recall": 1.0,
+      "f1": 0.84
+    },
+    {
+      "id": "H1",
+      "category": "hybrid_favorable",
+      "question": "What's likely causing the outage tickets near router-028?",
+      "mode": "vector_only",
+      "retrieved_count": 30,
+      "ground_truth_count": 21,
+      "precision": 0.233,
+      "recall": 0.333,
+      "f1": 0.275
+    },
+    {
+      "id": "H1",
+      "category": "hybrid_favorable",
+      "question": "What's likely causing the outage tickets near router-028?",
+      "mode": "hybrid",
+      "retrieved_count": 30,
+      "ground_truth_count": 21,
+      "precision": 0.5,
+      "recall": 0.714,
+      "f1": 0.588
+    },
+    {
+      "id": "H2",
+      "category": "hybrid_favorable",
+      "question": "What's likely causing the outage tickets near router-011?",
+      "mode": "graph_only",
+      "retrieved_count": 25,
+      "ground_truth_count": 21,
+      "precision": 0.84,
+      "recall": 1.0,
+      "f1": 0.913
+    },
+    {
+      "id": "H2",
+      "category": "hybrid_favorable",
+      "question": "What's likely causing the outage tickets near router-011?",
+      "mode": "vector_only",
+      "retrieved_count": 30,
+      "ground_truth_count": 21,
+      "precision": 0.033,
+      "recall": 0.048,
+      "f1": 0.039
+    },
+    {
+      "id": "H2",
+      "category": "hybrid_favorable",
+      "question": "What's likely causing the outage tickets near router-011?",
+      "mode": "hybrid",
+      "retrieved_count": 30,
+      "ground_truth_count": 21,
+      "precision": 0.4,
+      "recall": 0.571,
+      "f1": 0.471
+    },
+    {
+      "id": "H3",
+      "category": "hybrid_favorable",
+      "question": "What's likely causing the outage tickets near router-025?",
+      "mode": "graph_only",
+      "retrieved_count": 30,
+      "ground_truth_count": 22,
+      "precision": 0.667,
+      "recall": 0.909,
+      "f1": 0.769
+    },
+    {
+      "id": "H3",
+      "category": "hybrid_favorable",
+      "question": "What's likely causing the outage tickets near router-025?",
+      "mode": "vector_only",
+      "retrieved_count": 30,
+      "ground_truth_count": 22,
+      "precision": 0.267,
+      "recall": 0.364,
+      "f1": 0.308
+    },
+    {
+      "id": "H3",
+      "category": "hybrid_favorable",
+      "question": "What's likely causing the outage tickets near router-025?",
+      "mode": "hybrid",
+      "retrieved_count": 30,
+      "ground_truth_count": 22,
+      "precision": 0.467,
+      "recall": 0.636,
+      "f1": 0.538
+    }
+  ],
+  "category_mode_mean_f1": {
+    "structural_favorable/graph_only": 1.0,
+    "structural_favorable/vector_only": 0.07,
+    "structural_favorable/hybrid": 0.54,
+    "semantic_favorable/graph_only": 0.0,
+    "semantic_favorable/vector_only": 0.468,
+    "semantic_favorable/hybrid": 0.468,
+    "hybrid_favorable/graph_only": 0.841,
+    "hybrid_favorable/vector_only": 0.207,
+    "hybrid_favorable/hybrid": 0.532
+  }
+}
