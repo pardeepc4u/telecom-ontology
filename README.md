@@ -1,7 +1,6 @@
 # Telecom Network Digital Twin — Hybrid Graph + Vector RAG
 
-A home-lab demo project built to prepare for a Verizon AI Solutions Architect
-interview. It implements a small but complete **telecom network digital
+A home-lab demo project built to implements a small but complete **telecom network digital
 twin**: synthetic topology, customer, and ticket data modeled against an
 explicit ontology, queryable through a **hybrid retrieval pipeline** that
 fuses graph (Neo4j) and vector (Chroma/Qdrant) recall behind a single
@@ -14,14 +13,14 @@ vector-only vs. graph-only vs. hybrid retrieval.
 
 ## Why this exists
 
-Verizon's production AI stack (Google Cloud's Agentic Data Cloud, Spanner
+Telecom's production AI stack (Google Cloud's Agentic Data Cloud, Spanner
 Graph / BigQuery Graph, Gemini Enterprise agent orchestration, plus an AWS
 Bedrock RAG stack for other workloads) leans heavily on graph representations
 of relationship-dense data — network topology, customer/account structure —
 combined with vector retrieval for unstructured ticket/document data. This
 repo is a small-scale, self-contained analog of that shape, built to
 demonstrate the same design trade-offs rather than to claim knowledge of
-Verizon's actual internals.
+Telecom's actual internals.
 
 See [docs/PLAN.md](docs/PLAN.md) for the full research context and interview
 framing this project is built around.
@@ -88,4 +87,4 @@ regenerating data is safe.
 - **Vector store:** Chroma or Qdrant (Docker)
 - **LLM access:** local vLLM stack
 - **Serving:** FastAPI
-- **Data:** fully synthetic — no real Verizon data
+- **Data:** fully synthetic — no real Telecom data

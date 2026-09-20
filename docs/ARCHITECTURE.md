@@ -79,7 +79,7 @@ retrieval" rather than a hand-wave.
 
 ## Why this shape
 
-This mirrors the trade-off Verizon's own stack is built around (see
+This mirrors the trade-off Telecom's own stack is built around (see
 [PLAN.md](PLAN.md#2-likely-interview-angles)): vector RAG is fast and
 scalable but loses relationships; graph RAG preserves relationships and is
 traceable but doesn't do fuzzy semantic matching. A router + fusion

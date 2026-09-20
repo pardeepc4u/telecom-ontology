@@ -1,11 +1,11 @@
 # Project Plan
 
 Context and phased build plan for the Telecom Network Digital Twin demo,
-prepared ahead of a Verizon AI Solutions Architect interview and consultation.
+prepared ahead of a  AI Solutions Architect interview and consultation.
 
-## 1. Research context — Verizon's AI stack
+## 1. Research context — Telecom's AI stack
 
-- **Google Cloud partnership (announced Aug 2026):** Verizon consolidated
+- **Google Cloud partnership (announced Aug 2026):** Telecom consolidated
   legacy data lakes onto Google's **Agentic Data Cloud**, unifying
   structured databases, unstructured documents, and knowledge graphs. Uses
   **Gemini Enterprise** for the contact center (evolved from years of
@@ -25,7 +25,7 @@ prepared ahead of a Verizon AI Solutions Architect interview and consultation.
   network config changes in 2025, using frontier models including
   Anthropic's Claude embedded for traffic management. Agents detect
   anomalies and spin up sub-agents to isolate faulty network domains,
-  resolving issues in under 2 minutes. Runs on the on-prem **Verizon Cloud
+  resolving issues in under 2 minutes. Runs on the on-prem **Telecom Cloud
   Platform** (hosts 5G SA core, vRAN, on-prem GPUs).
 - **Caveat:** no public confirmation of the exact graph database vendor
   (e.g. not confirmed as Neo4j specifically) — do not state this as fact in
@@ -37,12 +37,12 @@ prepared ahead of a Verizon AI Solutions Architect interview and consultation.
   scalable but loses relationships between chunked data; graph RAG preserves
   relationships and is more transparent (traceable subgraphs) — better
   suited to relationship-intensive domains (network topology, customer/
-  account relationships), which is exactly Verizon's data shape.
+  account relationships), which is exactly Telecom's data shape.
 - **Ontology design approach:** modern practice leans on LLMs to infer
   relationships/entities and map them to ontologies dynamically, rather than
   fully hand-building OWL/RDF schemas upfront.
 - **Cross-cloud / zero-ETL data unification** (the siloed data problem) —
-  relevant since Verizon runs both Google Cloud and AWS AI stacks.
+  relevant since Telecom runs both Google Cloud and AWS AI stacks.
 
 ## 3. Background: RDF, OWL, property graphs, Palantir Ontology
 
@@ -117,7 +117,7 @@ demo in a code review. See [ONTOLOGY.md](ONTOLOGY.md).
   operational, action-oriented enterprise use cases (governance, security,
   agent execution matter more than formal inference); OWL/RDF remains
   better where open standards, portability, and genuine automated reasoning
-  matter more. Verizon's actual implementation is built on Google's Spanner
+  matter more. Telecom's actual implementation is built on Google's Spanner
   Graph/BigQuery Graph, not Palantir Foundry, but conceptually leans toward
   the operational/action-oriented model in spirit.
 
@@ -127,7 +127,7 @@ An end-to-end, clearly staged pipeline:
 
 1. **Data layer** — synthetic data generator producing network topology
    (cell towers, routers, dependencies), customer records, and realistic
-   support tickets/outage logs. Fully self-contained, no real Verizon data.
+   support tickets/outage logs. Fully self-contained, no real Telecom data.
 2. **Ontology layer** — explicit ontology definition file checked into the
    repo: entity types (cell tower, router, customer, service plan) and
    relationship types (connects-to, serves, depends-on) as a real design
