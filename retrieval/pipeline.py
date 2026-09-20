@@ -7,6 +7,7 @@ Usage:
 """
 
 import sys
+from concurrent.futures import ThreadPoolExecutor
 
 from . import graph_retrieval, vector_retrieval
 from .fusion import fuse
@@ -24,11 +25,18 @@ def retrieve(question: str, top_k: int = 10) -> dict:
         semantic = vector_retrieval.search(question, top_k=top_k)
         return {"question": question, "mode": mode, "structural": None, "semantic": semantic, "fused": None}
 
-    # hybrid — the two recall paths are independent of each other so, in a
-    # server context with an async client, they'd run concurrently; here
-    # they're sequential since both are simple synchronous calls.
-    structural = graph_retrieval.structural_ticket_recall(question, limit=top_k * 2)
-    semantic = vector_retrieval.search(question, top_k=top_k * 2)
+    # hybrid — structural and semantic recall are independent of each other,
+    # and both are I/O-bound (Neo4j / Qdrant / vLLM network calls), so run
+    # them on separate threads rather than sequentially. The underlying
+    # clients (neo4j driver, requests, qdrant-client) are all synchronous,
+    # so a thread pool is the straightforward way to get real concurrency
+    # here without switching the whole retrieval layer to async clients.
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        structural_future = executor.submit(graph_retrieval.structural_ticket_recall, question, top_k * 2)
+        semantic_future = executor.submit(vector_retrieval.search, question, top_k * 2)
+        structural = structural_future.result()
+        semantic = semantic_future.result()
+
     fused = fuse(structural["hits"], semantic, top_k=top_k)
     return {"question": question, "mode": mode, "structural": structural, "semantic": semantic, "fused": fused}
 

@@ -1,9 +1,12 @@
-# Retrieval Architecture
+# Retrieval + Serving Architecture
 
-> Status: implemented and live-tested (Phase 4, confirmed 2026-09-20). See
-> `retrieval/` — `router.py`, `graph_retrieval.py`, `vector_retrieval.py`,
-> `fusion.py`, and the orchestrating `pipeline.py`. See the implementation
-> note below for one deliberate deviation from the original plan.
+> Status: implemented and live-tested. Retrieval (Phase 4) confirmed
+> 2026-09-20 — see `retrieval/`: `router.py`, `graph_retrieval.py`,
+> `vector_retrieval.py`, `fusion.py`, and the orchestrating `pipeline.py`.
+> Serving (Phase 5) confirmed the same day — see `serving/main.py` and
+> `serving/generation.py`. See the implementation note below for one
+> deliberate deviation from the original plan, and the [Serving](#serving)
+> section for the generation layer on top of retrieval.
 
 ## Overview
 
@@ -63,8 +66,12 @@ An LLM-based classifier that decides, per incoming query, whether it's:
 - **Vector recall:** cosine similarity search over ticket embeddings in the
   vector store.
 
-These two paths run concurrently rather than sequentially, since they're
-independent until fusion.
+These two paths run concurrently rather than sequentially — `pipeline.py`
+submits both to a `ThreadPoolExecutor` and waits on both futures, since
+they're independent until fusion. (The underlying clients — the Neo4j
+driver, `requests`, `qdrant-client` — are all synchronous, so a thread pool
+is what gets real concurrency here without rewriting the retrieval layer
+around async clients.)
 
 ### 3. Fusion logic
 
@@ -113,3 +120,31 @@ available.
 related `Ticket` nodes, returning ticket-shaped hits (`ticket_id`, `text`,
 `score`) directly comparable to vector search hits — the mechanism that
 makes fusion's overlap-boost possible at all.
+
+## Serving
+
+`serving/main.py` is a thin FastAPI layer with one real endpoint:
+`POST /ask` (`{"question": str, "top_k": int}` in, `{"question", "mode",
+"answer", "retrieval"}` out) plus a `GET /health` check. It does two
+things, in order:
+
+1. Calls `retrieval.pipeline.retrieve()` (Phase 4) — unchanged from the
+   CLI version.
+2. Calls `serving/generation.py`'s `synthesize_answer()` — the generation
+   half of RAG, which this project didn't need until there was an
+   HTTP-facing "question answering" surface to serve. It builds a plain-text
+   evidence block from the retrieval result (structural rows, semantic
+   hits, or fused hits depending on mode) and prompts the chat model to
+   answer *only* from that evidence, citing ticket/entity ids.
+
+**Why the full retrieval result is always returned alongside the prose
+answer:** synthesis isn't perfectly faithful. In testing, a structural
+question that correctly retrieved 7 customers came back with an answer
+claiming "these customers have business accounts" when only 4 of the 7
+were business-tier — the retrieval was complete and correct; the LLM's
+summarization dropped and over-generalized during synthesis. The raw
+`retrieval` field is the ground truth a demo (or a real operator) should
+actually trust; `answer` is a convenience on top of it, not a replacement
+for it. Worth stating outright in an interview rather than glossing over —
+it's a real, general limitation of the generation step in RAG, not a bug
+specific to this implementation.

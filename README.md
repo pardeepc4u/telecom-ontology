@@ -50,14 +50,14 @@ telecom-ontology/
 
 ## Status
 
-Phases 1 (environment), 2 (ontology + synthetic data), 3 (ingestion), and 4
-(retrieval core) are done, and Phases 3–4 have been confirmed working
-end-to-end against the live home-lab Neo4j / Qdrant / vLLM stack
-(2026-09-20) — real ingestion counts and real structural/semantic/hybrid
-query results, not just offline unit tests. See [docs/PLAN.md](docs/PLAN.md)
-for phase tracking and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the
-retrieval design, including a deliberate deviation from the original
-NL-to-Cypher plan.
+Phases 1–5 (environment, ontology + synthetic data, ingestion, retrieval
+core, serving) are done. Phases 3–5 have been confirmed working end-to-end
+against the live home-lab Neo4j / Qdrant / vLLM stack (2026-09-20) — real
+ingestion counts, real structural/semantic/hybrid query results, and real
+HTTP requests against the FastAPI `/ask` endpoint, not just offline unit
+tests. See [docs/PLAN.md](docs/PLAN.md) for phase tracking and
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the retrieval design,
+including a deliberate deviation from the original NL-to-Cypher plan.
 
 ## Getting started
 
@@ -72,8 +72,14 @@ python3 -m venv .venv
 cp .env.example .env   # fill in NEO4J_PASSWORD, VLLM_EMBEDDING_MODEL, VLLM_CHAT_MODEL
 .venv/bin/python -m ingestion.run_ingestion
 
-# Phase 4 — query the hybrid retrieval pipeline
+# Phase 4 — query the hybrid retrieval pipeline directly
 .venv/bin/python -m retrieval.pipeline "what's causing the outage tickets near tower-014?"
+
+# Phase 5 — serve it over HTTP
+.venv/bin/uvicorn serving.main:app --port 8000
+curl -s -X POST http://localhost:8000/ask \
+  -H "Content-Type: application/json" \
+  -d '{"question": "what'"'"'s causing the outage tickets near tower-014?"}'
 ```
 
 Phase 2 writes `data/generated/graph.json` (all entities + relationships),
@@ -89,11 +95,21 @@ regenerating data is safe.
 
 Phase 4's `retrieval/` package is driven by `retrieval.pipeline.retrieve()`:
 routes a question to structural, semantic, or hybrid handling, and for
-hybrid, fuses structural (graph neighbor-expansion) and semantic (vector
-similarity) ticket hits. `router.py`, `graph_retrieval.py`,
-`vector_retrieval.py`, and `fusion.py` are each independently importable
-and were unit-tested in isolation (fusion overlap-boost ranking, LLM JSON
-output parsing, Cypher template shape against real generated data).
+hybrid, runs structural (graph neighbor-expansion) and semantic (vector
+similarity) recall concurrently and fuses the ticket hits. `router.py`,
+`graph_retrieval.py`, `vector_retrieval.py`, and `fusion.py` are each
+independently importable and were unit-tested in isolation (fusion
+overlap-boost ranking, LLM JSON output parsing, Cypher template shape
+against real generated data).
+
+Phase 5's `serving/main.py` wraps `retrieve()` in a single `POST /ask`
+endpoint and adds an answer-synthesis step (`serving/generation.py`) that
+turns the retrieval result into a cited natural-language answer — the
+generation half of RAG. The full retrieval result is always returned
+alongside the prose `answer` in the response, since LLM synthesis isn't
+always perfectly faithful to the retrieved evidence (see
+[docs/PLAN.md's Phase 5 note](docs/PLAN.md)) — the raw rows/hits are the
+ground truth to fall back on.
 
 ## Stack
 

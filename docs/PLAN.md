@@ -190,8 +190,27 @@ An end-to-end, clearly staged pipeline:
       and `dependents_of` structural intents returned correct rows; semantic
       search ranked ticket text sensibly; hybrid fusion correctly boosted
       tickets found by both paths above single-path hits.
-- [ ] **Phase 5 — Serving.** Wrap hybrid retrieval in a FastAPI endpoint for
+- [x] **Phase 5 — Serving.** Wrap hybrid retrieval in a FastAPI endpoint for
       live demo.
+      See `serving/main.py` — a single `POST /ask` endpoint (plus
+      `GET /health`) that calls `retrieval.pipeline.retrieve()` and then
+      `serving/generation.py`'s `synthesize_answer()` to turn the retrieval
+      result into a cited natural-language answer (the generation half of
+      RAG, on top of Phase 4's retrieval half). Run with `uvicorn
+      serving.main:app --port 8000`; interactive docs at `/docs`.
+      Also: hybrid mode's structural and semantic recall now genuinely run
+      concurrently (`retrieval/pipeline.py`, `ThreadPoolExecutor`) rather
+      than sequentially, matching the "parallel retrieval" claim in
+      [ARCHITECTURE.md](ARCHITECTURE.md).
+      Confirmed working live (2026-09-20) against the running stack for all
+      three modes via real HTTP requests. One honest caveat: the LLM's
+      prose synthesis isn't always perfectly faithful to the retrieved
+      evidence — in one structural test it summarized 7 correctly-retrieved
+      customers as "these customers have business accounts" when only 4 of
+      the 7 were. The retrieval rows themselves were complete and correct;
+      the drop happened in prose generation. `retrieval` is always returned
+      alongside `answer` in the API response for exactly this reason — the
+      demo should show both, not just the prose.
 - [ ] **Phase 6 — Evaluation.** Write the fixed test question set; run all
       three modes (vector-only, graph-only, hybrid); document results in
       [EVALUATION.md](EVALUATION.md) with a comparison table.

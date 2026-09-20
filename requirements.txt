@@ -7,4 +7,6 @@ qdrant-client>=1.9
 requests>=2.31
 python-dotenv>=1.0
 
-# Later phases add: fastapi, uvicorn.
+# Phase 5 — FastAPI serving
+fastapi>=0.110
+uvicorn>=0.29
