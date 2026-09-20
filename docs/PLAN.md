@@ -172,9 +172,20 @@ An end-to-end, clearly staged pipeline:
       (relationship grouping, chunking, payload shape); live DB/Qdrant/vLLM
       connectivity has not yet been exercised end-to-end — see status note
       below.
-- [ ] **Phase 4 — Retrieval core.** Implement the graph RAG path
+- [x] **Phase 4 — Retrieval core.** Implement the graph RAG path
       (NL-to-Cypher) alone and test it; implement the vector RAG path alone
       and test it; then build the router and fusion logic to combine them.
+      See `retrieval/` and [ARCHITECTURE.md's implementation note](ARCHITECTURE.md#implementation-note-constrained-templates-not-open-nl-to-cypher)
+      for why this ended up as LLM-driven entity/intent extraction plus
+      fixed Cypher templates rather than free-form NL-to-Cypher generation —
+      a deliberate safety/determinism trade-off worth explaining as such,
+      not the original literal plan. Router (`router.py`), structural
+      recall (`graph_retrieval.py`), semantic recall (`vector_retrieval.py`),
+      fusion (`fusion.py`), and the orchestrating `pipeline.py` are all
+      written and unit-tested offline (fusion overlap-boost logic, LLM JSON
+      output parsing, Cypher template correctness against real generated
+      data). Live testing against running Neo4j/Qdrant/vLLM — same caveat as
+      Phase 3 — is still pending.
 - [ ] **Phase 5 — Serving.** Wrap hybrid retrieval in a FastAPI endpoint for
       live demo.
 - [ ] **Phase 6 — Evaluation.** Write the fixed test question set; run all

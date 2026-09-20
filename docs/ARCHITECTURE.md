@@ -1,7 +1,10 @@
 # Retrieval Architecture
 
-> Status: not yet started (Phase 4). This document describes the target
-> design; implementation follows the phased plan in [PLAN.md](PLAN.md).
+> Status: implemented (Phase 4). See `retrieval/` — `router.py`,
+> `graph_retrieval.py`, `vector_retrieval.py`, `fusion.py`, and the
+> orchestrating `pipeline.py`. Written and unit-tested offline; not yet
+> exercised against a live Neo4j/Qdrant/vLLM stack. See the implementation
+> note below for one deliberate deviation from the original plan.
 
 ## Overview
 
@@ -85,3 +88,29 @@ scalable but loses relationships; graph RAG preserves relationships and is
 traceable but doesn't do fuzzy semantic matching. A router + fusion
 approach gets both without forcing every query through the slower or less
 precise path unnecessarily.
+
+## Implementation note: constrained templates, not open NL-to-Cypher
+
+The original plan (see [PLAN.md](PLAN.md)) described the graph RAG path as
+"NL-to-Cypher." The actual implementation (`graph_retrieval.py`) does
+something narrower and, on reflection, better: the LLM's job is limited to
+extracting (a) which entity a question is about and (b) which of four fixed
+intents it maps to (`dependents_of`, `towers_under_router`,
+`customers_of_tower`, `tickets_near`) — not writing arbitrary Cypher.
+
+Each intent maps to one hand-written, parameterized Cypher template. This
+still delivers "ask a question in English, get a graph traversal back," but
+avoids the real failure mode of free-form LLM-generated Cypher in
+production: a syntactically valid but semantically wrong query that returns
+confident, plausible-looking, incorrect results with no signal that
+anything went wrong. Constrained templates are also what make the entity
+resolution, intent mapping, and Cypher correctness testable offline against
+real generated data (`data/generated/graph.json`) without a live LLM call —
+which is exactly how this module was verified before a live stack was
+available.
+
+`tickets_near` is the intent hybrid mode actually uses: it walks
+`CONCERNS`/`CONNECTS_TO`/`DEPENDS_ON` out from the resolved entity to
+related `Ticket` nodes, returning ticket-shaped hits (`ticket_id`, `text`,
+`score`) directly comparable to vector search hits — the mechanism that
+makes fusion's overlap-boost possible at all.

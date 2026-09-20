@@ -50,11 +50,13 @@ telecom-ontology/
 
 ## Status
 
-Phases 1 (environment), 2 (ontology + synthetic data), and 3 (ingestion) are
-code-complete. Phase 3's ingestion logic (ontology-driven relationship
-grouping, chunking, payload shape) has been dry-run tested against real
-generated data; it has not yet been run end-to-end against a live Neo4j /
-Qdrant / vLLM stack. See [docs/PLAN.md](docs/PLAN.md) for phase tracking.
+Phases 1 (environment), 2 (ontology + synthetic data), 3 (ingestion), and 4
+(retrieval core) are code-complete. Phases 3 and 4 have been unit-tested
+offline against real generated data but not yet exercised end-to-end
+against a live Neo4j / Qdrant / vLLM stack. See [docs/PLAN.md](docs/PLAN.md)
+for phase tracking and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the
+retrieval design, including a deliberate deviation from the original
+NL-to-Cypher plan.
 
 ## Getting started
 
@@ -66,8 +68,11 @@ python3 -m venv .venv
 .venv/bin/python -m data.generator.generate --seed 42
 
 # Phase 3 — ingest into Neo4j + Qdrant (requires Phase 1's stack running)
-cp .env.example .env   # fill in NEO4J_PASSWORD and VLLM_EMBEDDING_MODEL
+cp .env.example .env   # fill in NEO4J_PASSWORD, VLLM_EMBEDDING_MODEL, VLLM_CHAT_MODEL
 .venv/bin/python -m ingestion.run_ingestion
+
+# Phase 4 — query the hybrid retrieval pipeline
+.venv/bin/python -m retrieval.pipeline "what's causing the outage tickets near tower-014?"
 ```
 
 Phase 2 writes `data/generated/graph.json` (all entities + relationships),
@@ -80,6 +85,14 @@ Phase 3's `ingestion/neo4j_loader.py` and `ingestion/vector_loader.py` are
 each independently runnable too (`python -m ingestion.neo4j_loader`, `python
 -m ingestion.vector_loader`) and idempotent, so re-running after
 regenerating data is safe.
+
+Phase 4's `retrieval/` package is driven by `retrieval.pipeline.retrieve()`:
+routes a question to structural, semantic, or hybrid handling, and for
+hybrid, fuses structural (graph neighbor-expansion) and semantic (vector
+similarity) ticket hits. `router.py`, `graph_retrieval.py`,
+`vector_retrieval.py`, and `fusion.py` are each independently importable
+and were unit-tested in isolation (fusion overlap-boost ranking, LLM JSON
+output parsing, Cypher template shape against real generated data).
 
 ## Stack
 
