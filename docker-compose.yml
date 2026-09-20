@@ -1,0 +1,36 @@
+# Phase 1's local stack: Neo4j (graph store) + Qdrant (vector store).
+#
+# LLM access (embeddings + chat) is deliberately NOT included here — this
+# project talks to it over an OpenAI-compatible HTTP endpoint (vLLM or a
+# gateway in front of it), which is out of scope for a docker-compose file
+# to stand up generically. Point VLLM_BASE_URL in .env at wherever that's
+# actually running.
+#
+# Usage:
+#   docker compose up -d
+#   cp .env.example .env   # NEO4J_URI/QDRANT_URL defaults already match this file
+#
+# Then continue with the Getting started steps in README.md.
+
+services:
+  neo4j:
+    image: neo4j:5-community
+    ports:
+      - "7474:7474" # HTTP browser UI
+      - "7687:7687" # Bolt (what NEO4J_URI in .env points at)
+    environment:
+      NEO4J_AUTH: neo4j/${NEO4J_PASSWORD:?set NEO4J_PASSWORD in .env or the environment}
+    volumes:
+      - neo4j_data:/data
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports:
+      - "6333:6333" # HTTP/gRPC (what QDRANT_URL in .env points at)
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+
+volumes:
+  neo4j_data:
+  qdrant_data:

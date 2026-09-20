@@ -1,10 +1,10 @@
 # Telecom Network Digital Twin — Hybrid Graph + Vector RAG
 
-A home-lab demo project built to implements a small but complete **telecom network digital
-twin**: synthetic topology, customer, and ticket data modeled against an
-explicit ontology, queryable through a **hybrid retrieval pipeline** that
-fuses graph (Neo4j) and vector (Chroma/Qdrant) recall behind a single
-FastAPI endpoint.
+A home-lab demo project implementing a small but complete **telecom network
+digital twin**: synthetic topology, customer, and ticket data modeled
+against an explicit ontology, queryable through a **hybrid retrieval
+pipeline** that fuses graph (Neo4j) and vector (Qdrant) recall behind a
+single FastAPI endpoint.
 
 The goal is not scale — it's a clean, demoable, end-to-end pipeline that
 shows deliberate architectural judgment: an explicit ontology, a router that
@@ -29,33 +29,38 @@ framing this project is built around.
 
 ```
 telecom-ontology/
-├── README.md                 # this file
+├── README.md                # this file
+├── docker-compose.yml       # Neo4j + Qdrant local stack (Phase 1)
+├── .env.example             # config template — copy to .env
 ├── requirements.txt
 ├── docs/
-│   ├── PLAN.md                # research context, interview angles, phased build plan
-│   ├── ONTOLOGY.md            # entity/relationship ontology definition
-│   ├── ARCHITECTURE.md        # retrieval pipeline design (router + fusion)
-│   └── EVALUATION.md          # eval methodology and results (filled in during Phase 6)
+│   ├── PLAN.md               # research context, interview angles, phased build plan
+│   ├── ONTOLOGY.md           # entity/relationship ontology definition
+│   ├── ARCHITECTURE.md       # retrieval + serving design (router, fusion, RAG)
+│   ├── EVALUATION.md         # eval methodology, results table, findings (Phase 6)
+│   └── WALKTHROUGH.md        # interview rehearsal script (Phase 7)
 ├── ontology/
-│   ├── schema.yaml             # source-of-truth entity/relationship schema
-│   └── constraints.cypher      # Neo4j uniqueness constraints derived from schema.yaml
+│   ├── schema.yaml           # source-of-truth entity/relationship schema
+│   └── constraints.cypher    # Neo4j uniqueness constraints derived from schema.yaml
 ├── data/
-│   ├── generator/               # synthetic data generator (topology, customers, tickets)
-│   └── generated/                # generator output — gitignored, reproducible from --seed
-├── ingestion/                  # Neo4j + vector store loaders (Phase 3)
-├── retrieval/                  # graph RAG, vector RAG, router, fusion logic (Phase 4)
-├── serving/                    # FastAPI app (Phase 5)
-├── eval/                       # fixed question set, ground truth, metrics (Phase 6)
-└── docker-compose.yml           # Neo4j + vector store local stack (Phase 1)
+│   ├── generator/             # synthetic data generator (topology, customers, tickets)
+│   └── generated/              # generator output — gitignored, reproducible from --seed
+├── ingestion/                # Neo4j + vector store loaders (Phase 3)
+├── retrieval/                # graph RAG, vector RAG, router, fusion logic (Phase 4)
+├── serving/                  # FastAPI app (Phase 5)
+└── eval/                     # fixed question set, ground truth, metrics (Phase 6)
 ```
 
 ## Status
 
-Phases 1–6 (environment, ontology + synthetic data, ingestion, retrieval
-core, serving, evaluation) are done. Phases 3–6 have been confirmed working
-end-to-end against the live home-lab Neo4j / Qdrant / vLLM stack
-(2026-09-20) — real ingestion counts, real query results, real HTTP
-requests, and a real scored evaluation run, not just offline unit tests.
+All 7 phases are done (environment, ontology + synthetic data, ingestion,
+retrieval core, serving, evaluation, polish). Phases 3–6 have been
+confirmed working end-to-end against the live home-lab Neo4j / Qdrant /
+vLLM stack (2026-09-20) — real ingestion counts, real query results, real
+HTTP requests, and a real scored evaluation run, not just offline unit
+tests. **New here? Start with [docs/WALKTHROUGH.md](docs/WALKTHROUGH.md)**
+— a condensed demo script with live commands, the design decisions worth
+narrating, and answers to the questions most likely to come up.
 See [docs/PLAN.md](docs/PLAN.md) for phase tracking,
 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the retrieval design
 (including a deliberate deviation from the original NL-to-Cypher plan, and
@@ -66,13 +71,17 @@ honest write-up of where hybrid did and didn't beat a single-path mode.
 ## Getting started
 
 ```bash
+# Phase 1 — stand up Neo4j + Qdrant locally (skip if you already have a
+# stack running elsewhere — just point .env at it instead)
+docker compose up -d
+
 python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
 
 # Phase 2 — generate the synthetic dataset
 .venv/bin/python -m data.generator.generate --seed 42
 
-# Phase 3 — ingest into Neo4j + Qdrant (requires Phase 1's stack running)
+# Phase 3 — ingest into Neo4j + Qdrant
 cp .env.example .env   # fill in NEO4J_PASSWORD, VLLM_EMBEDDING_MODEL, VLLM_CHAT_MODEL
 .venv/bin/python -m ingestion.run_ingestion
 
@@ -128,8 +137,14 @@ scales) and the fix (switching to Reciprocal Rank Fusion).
 
 ## Stack
 
-- **Graph store:** Neo4j Community Edition (Docker)
-- **Vector store:** Chroma or Qdrant (Docker)
-- **LLM access:** local vLLM stack
+- **Graph store:** Neo4j Community Edition (Docker — see `docker-compose.yml`)
+- **Vector store:** Qdrant (Docker — see `docker-compose.yml`); the
+  ingestion/retrieval code has no Qdrant-specific coupling beyond
+  `qdrant-client`, so swapping in Chroma would only touch
+  `ingestion/vector_loader.py` and `retrieval/vector_retrieval.py`
+- **LLM access:** an OpenAI-compatible vLLM/gateway endpoint — one model
+  for embeddings (`VLLM_EMBEDDING_MODEL`), one for chat/router/entity
+  extraction (`VLLM_CHAT_MODEL`); doesn't have to be the same model or the
+  same server for both
 - **Serving:** FastAPI
 - **Data:** fully synthetic — no real Telecom data

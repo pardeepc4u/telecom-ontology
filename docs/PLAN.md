@@ -236,6 +236,22 @@ An end-to-end, clearly staged pipeline:
       each list, not raw score) — the standard technique for exactly this
       problem. Confirmed fixed and re-verified against the live stack
       (2026-09-20).
-- [ ] **Phase 7 — Polish for interview.** Clean README explaining the
+- [x] **Phase 7 — Polish for interview.** Clean README explaining the
       ontology design and fusion logic decisions; push to GitHub; rehearse
       walking through the architecture end to end.
+      README rewritten: fixed a leftover grammar break from an earlier
+      find-and-replace, corrected the "Chroma or Qdrant" stack description
+      to state what's actually configured and tested (Qdrant), and added a
+      pointer to the new [WALKTHROUGH.md](WALKTHROUGH.md). Added
+      `docker-compose.yml` for Neo4j + Qdrant — previously referenced in
+      the repo structure listing but never actually created, since the
+      user's own home-lab stack was already running independently; it now
+      exists for portability/reproducibility (anyone cloning the repo can
+      stand up the same two services locally). Added
+      [WALKTHROUGH.md](WALKTHROUGH.md): a condensed interview rehearsal
+      script — suggested walkthrough order, live demo commands, the
+      specific design decisions worth narrating (ontology-not-OWL,
+      constrained-templates-not-open-NL-to-Cypher, RRF fusion fix),
+      anticipated questions with concise answers, and limitations to
+      volunteer rather than wait to be asked about. All phases (1-7) now
+      complete.
