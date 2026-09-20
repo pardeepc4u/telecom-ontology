@@ -1,9 +1,8 @@
 # Retrieval Architecture
 
-> Status: implemented (Phase 4). See `retrieval/` — `router.py`,
-> `graph_retrieval.py`, `vector_retrieval.py`, `fusion.py`, and the
-> orchestrating `pipeline.py`. Written and unit-tested offline; not yet
-> exercised against a live Neo4j/Qdrant/vLLM stack. See the implementation
+> Status: implemented and live-tested (Phase 4, confirmed 2026-09-20). See
+> `retrieval/` — `router.py`, `graph_retrieval.py`, `vector_retrieval.py`,
+> `fusion.py`, and the orchestrating `pipeline.py`. See the implementation
 > note below for one deliberate deviation from the original plan.
 
 ## Overview

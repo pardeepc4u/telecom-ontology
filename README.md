@@ -51,9 +51,10 @@ telecom-ontology/
 ## Status
 
 Phases 1 (environment), 2 (ontology + synthetic data), 3 (ingestion), and 4
-(retrieval core) are code-complete. Phases 3 and 4 have been unit-tested
-offline against real generated data but not yet exercised end-to-end
-against a live Neo4j / Qdrant / vLLM stack. See [docs/PLAN.md](docs/PLAN.md)
+(retrieval core) are done, and Phases 3–4 have been confirmed working
+end-to-end against the live home-lab Neo4j / Qdrant / vLLM stack
+(2026-09-20) — real ingestion counts and real structural/semantic/hybrid
+query results, not just offline unit tests. See [docs/PLAN.md](docs/PLAN.md)
 for phase tracking and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the
 retrieval design, including a deliberate deviation from the original
 NL-to-Cypher plan.

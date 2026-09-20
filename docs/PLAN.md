@@ -168,10 +168,10 @@ An end-to-end, clearly staged pipeline:
       (`customer_id`, `concerns_id`/`concerns_type`). Both scripts are
       idempotent (MERGE / deterministic point ids). Run both via
       `python -m ingestion.run_ingestion` after copying `.env.example` to
-      `.env`. Logic was dry-run tested against real generated data
-      (relationship grouping, chunking, payload shape); live DB/Qdrant/vLLM
-      connectivity has not yet been exercised end-to-end — see status note
-      below.
+      `.env`. Confirmed working live (2026-09-20) against the home-lab
+      stack: 32 CellTower, 28 Router, 180 Customer, 5 ServicePlan, and 164
+      Ticket nodes plus all six relationship types merged into Neo4j, and
+      164 ticket chunk embeddings upserted into Qdrant.
 - [x] **Phase 4 — Retrieval core.** Implement the graph RAG path
       (NL-to-Cypher) alone and test it; implement the vector RAG path alone
       and test it; then build the router and fusion logic to combine them.
@@ -184,8 +184,12 @@ An end-to-end, clearly staged pipeline:
       fusion (`fusion.py`), and the orchestrating `pipeline.py` are all
       written and unit-tested offline (fusion overlap-boost logic, LLM JSON
       output parsing, Cypher template correctness against real generated
-      data). Live testing against running Neo4j/Qdrant/vLLM — same caveat as
-      Phase 3 — is still pending.
+      data), and confirmed working live against the running Neo4j/Qdrant/
+      vLLM stack (2026-09-20): router correctly classified structural/
+      semantic/hybrid questions; entity resolution + both `customers_of_tower`
+      and `dependents_of` structural intents returned correct rows; semantic
+      search ranked ticket text sensibly; hybrid fusion correctly boosted
+      tickets found by both paths above single-path hits.
 - [ ] **Phase 5 — Serving.** Wrap hybrid retrieval in a FastAPI endpoint for
       live demo.
 - [ ] **Phase 6 — Evaluation.** Write the fixed test question set; run all
